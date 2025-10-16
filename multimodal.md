@@ -1,4 +1,5 @@
 # Multimodal Model - blaifa/Nanonets-OCR-s
+an alternative of `qwen3-vl:235b-cloud` paid model
 
 ## Download the model using ollama
 
@@ -44,6 +45,19 @@ type the following in your terminal:
 ollama run blaifa/Nanonets-OCR-s:latest "What's in this image? /root/llm/signature_ip.png"
 ```
 
+```
+curl http://localhost:11434/api/chat -d '{
+  "model": "blaifa/Nanonets-OCR-s:latest",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What's in this image?",
+      "images": ["<base64-encoded-image>"]
+    }
+  ]
+}'
+
+```
 
 ```curl
 curl http://localhost:11434/api/chat -d '{
