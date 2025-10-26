@@ -42,7 +42,7 @@ This drastically reduces the size of the model and speeds up inference.
 * Image compression technique called: JPEG
 * LLM model compression technique called: Quantization (.GGUF)
 
-### What is GGUF?
+### [What is GGUF?](https://huggingface.co/docs/hub/en/gguf)
 GGUF (GPT-Generated Unified Format) is a modern binary file format designed for efficient storage, loading, and inference of large language models (LLMs) — especially in local environments like llama.cpp, Ollama, and other GGML-based runtimes.
 
 `GGUF is the file format`, and `quantization` is the `compression technique` it supports.
