@@ -92,6 +92,7 @@ mkdir -p {input,output,done}
 
 > `python3 -m whisper mostain_voice.wav --model medium`
 
+
 location where models are downloaded:
 * `ls -la ~/.cache/whisper/`
 * `~/.cache/whisper/<model_name>.pt`
@@ -99,6 +100,14 @@ location where models are downloaded:
 > `export HF_HOME=/opt/whisper-cache` `python3 -m whisper mostain_voice.wav --model medium`
 
 > python3 -m whisper /root/aiagent/mostain_voice.wav --output_dir /root/aiagent/output --output_format srt --model medium
+
+```
+python3 -m whisper /root/aiagent/mostain_voice.wav \
+  --output_dir /root/aiagent/output \
+  --output_format srt \
+  --model medium \
+  --device cuda
+```
 
 > python3 -m whisper `/Users/.../input/{{$json.fileName}}` --output_dir `/Users/.../output` --output_format `all` --model `medium`
 

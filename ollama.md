@@ -13,7 +13,7 @@ Take a look at the LM Studio GitHub repository: https://github.com/lmstudio-ai. 
 
 
 ### What is ineference?
-to make predictions or generate outputs based on new input data.
+to make `predictions` or `generate outputs` based on new input data.
 
 
 ### Ollama Model we will be using:
