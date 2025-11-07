@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>n8n Image Upload</title>
+<style>
+  :root {
+    --blue:#2563eb; --blue-light:#dbeafe;
+    --green:#16a34a; --green-light:#dcfce7;
+    --text:#111827; --muted:#4b5563;
+    --card:#fff; --radius:12px; --shadow:0 10px 25px rgba(8,20,48,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; display:flex;
+    justify-content:center; align-items:center;
+    font-family:Inter, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg,#e0f2fe 0%,#fef3c7 100%);
+    padding:20px; color:var(--text);
+  }
+  .container{
+    max-width:560px; width:100%; background:var(--card);
+    border-radius:20px; box-shadow:var(--shadow); padding:24px;
+    text-align:center;
+  }
+  h1{margin-bottom:12px; font-size:1.6rem;}
+  .subtitle{color:var(--muted); font-size:0.95rem; margin-bottom:18px;}
+
+  .step{
+    text-align:left; border-radius:var(--radius); padding:16px;
+    margin-bottom:16px; transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  }
+  .step:hover{transform:translateY(-3px); box-shadow:0 10px 30px rgba(8,20,48,0.06);}
+  .step.disabled{opacity:.55; pointer-events:none;}
+
+  .step h2{margin:0 0 6px;font-size:1.05rem;}
+  .desc{color:var(--muted); font-size:0.92rem; margin-bottom:12px;}
+
+  .blue{background:var(--blue-light); border:1px solid rgba(37,99,235,.08);}
+  .green{background:var(--green-light); border:1px solid rgba(22,163,74,.08);}
+
+  button{
+    padding:10px 14px; border:none; border-radius:var(--radius);
+    font-weight:600; cursor:pointer; color:#fff;
+    background-color:var(--blue); transition:.1s ease;
+  }
+  button:active{transform:scale(.97);}
+  button.green{background:var(--green);}
+  button.green:hover{background:#146c43;}
+  button.secondary{background:#fff;color:var(--blue);border:1px solid rgba(37,99,235,.2);}
+
+  input[type="text"], input[type="file"]{
+    width:100%; padding:10px 12px; border-radius:var(--radius);
+    border:1px solid #e6e9ef; margin-bottom:10px;
+    font-size:0.95rem; background:#fff;
+  }
+  input[type="file"]::file-selector-button{
+    padding:8px 12px; border-radius:8px; border:none;
+    margin-right:8px; background:var(--green-light); color:var(--green); font-weight:600; cursor:pointer;
+  }
+
+  .status{margin-top:8px;text-align:left;font-size:0.92rem;}
+  .status .ok{color:var(--green); font-weight:700;}
+  .status .err{color:#dc2626;font-weight:700;}
+  pre{background:#f3f4f6;padding:10px;border-radius:10px;font-size:0.85rem;overflow:auto;}
+  .small{font-size:0.85rem;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>📤 Upload Image to n8n</h1>
+  <p class="subtitle">Step 1: Initiate session — Step 2: Upload image. Step 2 is enabled only if Initiate succeeds.</p>
+
+  <!-- STEP 1 -->
+  <section id="step1" class="step blue">
+    <h2>Step 1 — Initiate Upload</h2>
+    <p class="desc">Click to initiate an upload session. Backend response is validated before proceeding.</p>
+    <button id="startBtn">🚀 Initiate</button>
+    <div id="initStatus" class="status"><span class="small">Idle</span></div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section id="step2" class="step green disabled">
+    <h2>Step 2 — Upload Image</h2>
+    <p class="desc">Select an image and upload it to n8n.</p>
+    <form id="uploadForm">
+      <input type="file" id="imageInput" name="image" accept="image/*" required />
+      <input type="hidden" id="resumeURL" name="resumeURL" />
+      <input type="text" id="actionInput" name="action" placeholder="Action (optional)" />
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="submit" class="green">⬆️ Upload</button>
+        <button type="button" id="clearBtn" class="secondary">Clear</button>
+      </div>
+    </form>
+    <div id="uploadStatus" class="status"><span class="small">No upload yet</span></div>
+  </section>
+</div>
+
+<script>
+const INITIATE_ENDPOINT = 'http://localhost:8080/initiate';
+const UPLOAD_ENDPOINT = 'http://localhost:8080/upload';
+
+const startBtn = document.getElementById('startBtn');
+const initStatus = document.getElementById('initStatus');
+const step2 = document.getElementById('step2');
+const resumeURLInput = document.getElementById('resumeURL');
+const uploadForm = document.getElementById('uploadForm');
+const uploadStatus = document.getElementById('uploadStatus');
+const clearBtn = document.getElementById('clearBtn');
+
+startBtn.addEventListener('click', async () => {
+  startBtn.disabled = true;
+  initStatus.innerHTML = '⏳ Initiating session...';
+  step2.classList.add('disabled');
+
+  try {
+    const res = await fetch(INITIATE_ENDPOINT); // GET request
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const resumeURL = data.resumeURL || data.resumeUrl || '';
+    if (!resumeURL) throw new Error('No resumeURL returned');
+
+    resumeURLInput.value = resumeURL;
+    step2.classList.remove('disabled');
+    initStatus.innerHTML = `✅ Session started successfully!<br><small>${resumeURL}</small>`;
+    startBtn.textContent = '✅ Ready';
+  } catch (err) {
+    initStatus.innerHTML = `❌ Failed to start session: ${err.message}`;
+    startBtn.textContent = '🚀 Initiate';
+  } finally {
+    startBtn.disabled = false;
+  }
+});
+
+uploadForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (step2.classList.contains('disabled')) {
+    uploadStatus.innerHTML = '<span class="err">Step 2 disabled. Start a session first.</span>';
+    return;
+  }
+  const fileInput = document.getElementById('imageInput');
+  if (!fileInput.files.length) {
+    uploadStatus.innerHTML = '<span class="err">Select an image file.</span>';
+    return;
+  }
+  const resumeURLVal = resumeURLInput.value;
+  if (!resumeURLVal) {
+    uploadStatus.innerHTML = '<span class="err">Missing resumeURL. Re-initiate session.</span>';
+    step2.classList.add('disabled');
+    return;
+  }
+
+  const formData = new FormData(uploadForm);
+  formData.set('resumeURL', resumeURLVal);
+
+  uploadStatus.innerHTML = '⏳ Uploading...';
+  try {
+    const res = await fetch(UPLOAD_ENDPOINT, { method:'POST', body:formData });
+    const text = await res.text();
+    if (!res.ok) throw new Error(`Status ${res.status}\n${text}`);
+    uploadStatus.innerHTML = `<span class="ok">✅ Uploaded successfully!</span><pre>${text}</pre>`;
+  } catch(err) {
+    uploadStatus.innerHTML = `<span class="err">❌ Upload failed: ${err.message}</span>`;
+  }
+});
+
+clearBtn.addEventListener('click', () => {
+  uploadForm.reset();
+  uploadStatus.innerHTML = '<span class="small">Cleared</span>';
+});
+</script>
+
+</body>
+</html>

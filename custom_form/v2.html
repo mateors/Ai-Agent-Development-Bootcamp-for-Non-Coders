@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Image Upload via Go Proxy</title>
+</head>
+<body>
+  <h2>Two-Step Upload</h2>
+  <button id="initBtn">Initiate</button>
+  <p id="status"></p>
+  <form id="uploadForm" style="display:none;">
+    <input type="file" id="imageInput" accept="image/*" required />
+    <button type="submit">Upload Image</button>
+  </form>
+
+  <script>
+    let resumeURL = null;
+
+    document.getElementById('initBtn').addEventListener('click', async () => {
+      const status = document.getElementById('status');
+      status.textContent = "Initiating...";
+
+      const res = await fetch('http://localhost:8080/initiate', { method: 'POST' });
+      const data = await res.json();
+
+      resumeURL = data.resumeURL;
+      status.textContent = "Ready to upload. Resume URL received.";
+      document.getElementById('uploadForm').style.display = 'block';
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!resumeURL) {
+        alert("Please initiate first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", document.getElementById('imageInput').files[0]);
+      formData.append("resumeURL", resumeURL);
+
+      const res = await fetch('http://localhost:8080/upload', { method: 'POST', body: formData });
+      const data = await res.text();
+      document.getElementById('status').textContent = "Upload complete: " + data;
+    });
+  </script>
+</body>
+</html>
