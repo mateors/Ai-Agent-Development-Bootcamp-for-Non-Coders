@@ -111,6 +111,19 @@ python3 -m whisper /root/aiagent/mostain_voice.wav \
 
 > python3 -m whisper `/Users/.../input/{{$json.fileName}}` --output_dir `/Users/.../output` --output_format `all` --model `medium`
 
+> ffmpeg -i `sanzida.opus` `sanzida.wav`
+
+> cd /var/www/vhosts/whisper.local/public_html/whisper.cpp/bindings/go
+
+> ffmpeg -i ~/voice/sanzida.wav -ar 16000 -ac 1 ~/voice/sanzida_16k.wav
+
+> build_go/go-whisper -model models/ggml-large-v3.bin ~/voice/sanzida_16k.wav
+
+> build_go/go-whisper -model models/ggml-large-v3.bin -language bn -out srt  ~/voice/sanzida_16k.wav
+
+> build_go/go-whisper -model models/ggml-large-v3.bin -language bn ~/voice/sanzida_16k.wav
+
+
 ## Learning Resource
 * https://docs.astral.sh/uv/
 * https://www.vonage.com/
@@ -120,3 +133,5 @@ python3 -m whisper /root/aiagent/mostain_voice.wav \
 * https://huggingface.co/collections/openai/whisper-release-6501bba2cf999715fd953013
 * https://huggingface.co/openai/whisper-large-v2
 * https://chatgpt.com/c/68f49fe3-5884-8322-ae0b-beea6b1e00db
+* https://github.com/ggml-org/whisper.cpp/tree/master/bindings/go
+* https://huggingface.co/ggerganov/whisper.cpp
