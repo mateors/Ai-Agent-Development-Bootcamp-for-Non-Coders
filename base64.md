@@ -63,3 +63,20 @@ func main() {
     fmt.Println(encoded)
 }
 ```
+
+Here’s a clean one‑liner that will take an image file, encode it to base64, and inject it directly into your curl request
+
+```
+curl http://localhost:11434/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama3.2-vision",
+    "messages": [
+      {
+        "role": "user",
+        "content": "what is in this image?",
+        "images": ["'"$(base64 -i image.png | tr -d '\n')"'"]
+      }
+    ]
+  }'
+```
